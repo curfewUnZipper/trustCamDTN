@@ -1,3 +1,13 @@
+venv command:
+  cd backend/trust/scripts && activate && cd ../..
+
+gunicorn run command:
+  gunicorn --bind 0.0.0.0:5000 app:app
+
+old run command:
+  python app.py
+
+
 | Node / Component               | Runs Where?              | Role                                          |
 | ------------------------------ | ------------------------ | --------------------------------------------- |
 | **1. Edge Device**             | ESP32-CAM                | Capture image → encrypt → send                |

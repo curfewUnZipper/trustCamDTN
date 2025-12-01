@@ -269,14 +269,40 @@ def receive():
             "signature_ok": sig_ok
         }), 400
 
-    # Step 5: save image
+    # Step 5: smart file type detection + save
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S_%f")
-    filename = f"{device_id}_{ts}.jpg"
-    out_path = os.path.join(IMAGE_DIR, filename)
-    with open(out_path, "wb") as f:
-        f.write(plaintext)
+    filename = f"{device_id}_{ts}"
 
-    print(">> File saved:", out_path)
+    # Detect if plaintext is UTF-8 text
+    is_text = False
+    decoded_text = None
+
+    try:
+        decoded_text = plaintext.decode("utf-8")
+        is_text = True
+    except UnicodeDecodeError:
+        is_text = False
+
+    if is_text and len(decoded_text.strip()) > 0:
+        filename += ".txt"
+        with open(os.path.join(IMAGE_DIR, filename), "w", encoding="utf-8") as f:
+            f.write(decoded_text)
+
+    else:
+        # Detect image or other binary
+        if plaintext.startswith(b"\xff\xd8\xff"):
+            filename += ".jpg"
+        elif plaintext.startswith(b"\x89PNG"):
+            filename += ".png"
+        elif plaintext.startswith(b"%PDF"):
+            filename += ".pdf"
+        else:
+            filename += ".bin"
+
+        with open(os.path.join(IMAGE_DIR, filename), "wb") as f:
+            f.write(plaintext)
+
+
    
 
     return jsonify({
