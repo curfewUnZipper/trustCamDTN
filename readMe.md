@@ -2,6 +2,7 @@ venv command:
   cd backend/trust/scripts && activate && cd ../..
 
 gunicorn run command:
+  python -m gunicorn --bind 0.0.0.0:5000 app:app
   gunicorn --bind 0.0.0.0:5000 app:app
 
 old run command:
